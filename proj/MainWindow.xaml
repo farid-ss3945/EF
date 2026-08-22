@@ -1,0 +1,160 @@
+﻿<!-- Views/MainWindow.xaml -->
+<Window x:Class="CafeOrders.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Учёт заказов в кафе" Height="750" Width="1100">
+    <TabControl>
+
+        <!-- ===== МЕНЮ (CRUD) ===== -->
+        <TabItem Header="Меню">
+            <Grid Margin="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <DataGrid Grid.Column="0" ItemsSource="{Binding Menu}"
+                          SelectedItem="{Binding SelectedMenuItem}"
+                          AutoGenerateColumns="False" IsReadOnly="True" Margin="0,0,8,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Категория" Binding="{Binding Category}" Width="120" />
+                        <DataGridTextColumn Header="Цена" Binding="{Binding Price, StringFormat=N2}" Width="80" />
+                        <DataGridCheckBoxColumn Header="В наличии" Binding="{Binding IsAvailable}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Название" />
+                    <TextBox Text="{Binding EditItemName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" />
+
+                    <TextBlock Text="Категория" />
+                    <TextBox Text="{Binding EditItemCategory, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" />
+
+                    <TextBlock Text="Цена" />
+                    <TextBox Text="{Binding EditItemPrice, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" />
+
+                    <CheckBox Content="В наличии" IsChecked="{Binding EditItemIsAvailable}" Margin="0,0,0,10" />
+
+                    <Button Content="Добавить новое" Command="{Binding AddMenuItemCommand}" Margin="0,0,0,4" />
+                    <Button Content="Сохранить изменения" Command="{Binding SaveMenuItemCommand}" Margin="0,0,0,4" />
+                    <Button Content="Удалить" Command="{Binding DeleteMenuItemCommand}" Margin="0,0,0,4" />
+                    <Button Content="Очистить форму" Command="{Binding ClearMenuFormCommand}" />
+                </StackPanel>
+            </Grid>
+        </TabItem>
+
+        <!-- ===== НОВЫЙ ЗАКАЗ ===== -->
+        <TabItem Header="Новый заказ">
+            <DockPanel Margin="8">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Стол:" VerticalAlignment="Center" Margin="0,0,4,0" />
+                    <ComboBox Width="120" ItemsSource="{Binding Tables}" SelectedItem="{Binding SelectedTable}"
+                              DisplayMemberPath="Number" Margin="0,0,16,0" />
+
+                    <TextBlock Text="Официант:" VerticalAlignment="Center" Margin="0,0,4,0" />
+                    <ComboBox Width="180" ItemsSource="{Binding Waiters}" SelectedItem="{Binding SelectedWaiter}"
+                              DisplayMemberPath="FullName" />
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                    <TextBlock Text="Итого:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,4,0" />
+                    <TextBlock Text="{Binding NewOrderTotal, StringFormat=N2}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,16,0" />
+                    <Button Content="Создать заказ" Command="{Binding CreateOrderCommand}" Padding="10,2" />
+                </StackPanel>
+
+                <DataGrid ItemsSource="{Binding NewOrderLines}" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Выбрано" Binding="{Binding IsSelected}" Width="60" />
+                        <DataGridTextColumn Header="Блюдо" Binding="{Binding Name}" Width="*" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Цена" Binding="{Binding Price, StringFormat=N2}" Width="80" IsReadOnly="True" />
+                        <DataGridTextColumn Header="Кол-во" Binding="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" Width="60" />
+                        <DataGridTextColumn Header="Сумма" Binding="{Binding LineTotal, StringFormat=N2}" Width="80" IsReadOnly="True" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </TabItem>
+
+        <!-- ===== ЗАКАЗЫ ===== -->
+        <TabItem Header="Заказы">
+            <DockPanel Margin="8">
+                <Button DockPanel.Dock="Top" Content="Обновить список" Command="{Binding RefreshOrdersCommand}"
+                        Margin="0,0,0,8" HorizontalAlignment="Left" />
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="0" ItemsSource="{Binding Orders}" SelectedItem="{Binding SelectedOrder}"
+                              AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="№ заказа" Binding="{Binding OrderId}" Width="70" />
+                            <DataGridTextColumn Header="Стол" Binding="{Binding TableNumber}" Width="60" />
+                            <DataGridTextColumn Header="Официант" Binding="{Binding WaiterName}" Width="150" />
+                            <DataGridTextColumn Header="Создан" Binding="{Binding CreatedAt, StringFormat=g}" Width="140" />
+                            <DataGridTextColumn Header="Сумма" Binding="{Binding Total, StringFormat=N2}" Width="90" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="90" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DockPanel Grid.Row="1" Margin="0,8,0,0">
+                        <StackPanel DockPanel.Dock="Right" Width="180" Margin="8,0,0,0">
+                            <TextBlock Text="Статус заказа" FontWeight="Bold" />
+                            <ComboBox SelectedItem="{Binding NewStatus}" Margin="0,4,0,8">
+                                <ComboBoxItem Content="Open" />
+                                <ComboBoxItem Content="Paid" />
+                                <ComboBoxItem Content="Cancelled" />
+                            </ComboBox>
+                            <Button Content="Сохранить статус" Command="{Binding SaveStatusCommand}" />
+                        </StackPanel>
+
+                        <DataGrid ItemsSource="{Binding SelectedOrderItems}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Блюдо" Binding="{Binding Name}" Width="*" />
+                                <DataGridTextColumn Header="Кол-во" Binding="{Binding Quantity}" Width="70" />
+                                <DataGridTextColumn Header="Цена" Binding="{Binding Price, StringFormat=N2}" Width="80" />
+                                <DataGridTextColumn Header="Сумма" Binding="{Binding LineTotal, StringFormat=N2}" Width="80" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </Grid>
+            </DockPanel>
+        </TabItem>
+
+        <!-- ===== СТАТИСТИКА ===== -->
+        <TabItem Header="Статистика">
+            <DockPanel Margin="8">
+                <Button DockPanel.Dock="Top" Content="Загрузить статистику" Command="{Binding LoadStatsCommand}"
+                        Margin="0,0,0,8" HorizontalAlignment="Left" />
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <DataGrid Grid.Column="0" ItemsSource="{Binding PopularDishes}" AutoGenerateColumns="False"
+                              IsReadOnly="True" Margin="0,0,4,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Блюдо" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Кол-во продано" Binding="{Binding TotalQuantity}" Width="120" />
+                            <DataGridTextColumn Header="Выручка" Binding="{Binding TotalRevenue, StringFormat=N2}" Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid Grid.Column="1" ItemsSource="{Binding Revenue}" AutoGenerateColumns="False"
+                              IsReadOnly="True" Margin="4,0,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="День" Binding="{Binding Day}" Width="100" />
+                            <DataGridTextColumn Header="Выручка" Binding="{Binding Revenue}" Width="100" />
+                            <DataGridTextColumn Header="Заказов" Binding="{Binding OrdersCount}" Width="80" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </DockPanel>
+        </TabItem>
+
+    </TabControl>
+</Window>
